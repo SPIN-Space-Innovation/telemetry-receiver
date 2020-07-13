@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Rocket Control Station</title>
+    <style>
+      body {
+        margin: 0;
+        background: #2d3436;
+        font-family: arial;
+      }
+
+      #logs_wrapper {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0px;
+        margin: 0;
+      }
+
+      #raw_logs {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        color: #b2bec3;
+        font-size: 12px;
+        font-weight: bold;
+        overflow: auto;
+        box-sizing: border-box;
+        line-height: 16px;
+        resize: none;
+      }
+
+      #logs_wrapper span {
+        color: #000;
+        z-index: 1;
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 5px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      #controls {
+        position: absolute;
+        width: 50%;
+        right: 0;
+        top: calc(50% - 210px);
+      }
+
+      #state {
+        text-align: center;
+        color: #55efc4;
+      }
+
+      #fts {
+        background: #d63031;
+        color: #fff;
+        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        text-align: center;
+        font-weight: bold;
+        line-height: 150px;
+        box-shadow: 0px 0px 15px #000;
+        cursor: pointer;
+        margin: auto;
+        -webkit-transition: box-shadow 0.2s ease-in-out;
+        user-select: none;
+      }
+
+      #fts:active {
+        box-shadow: none;
+      }
+
+      .button {
+        user-select: none;
+        width: 150px;
+        background: #b2bec3;
+        text-transform: uppercase;
+        text-align: center;
+        font-weight: bold;
+        padding: 8px;
+        border: 2px solid #000;
+        cursor: pointer;
+      }
+
+      #commands {
+        margin-top: 100px;
+        text-align: center;
+      }
+
+      #commands .button {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='logs_wrapper'>
+      <textarea id='raw_logs' disabled></textarea>
+      <span>Autoscroll <input type='checkbox' checked /></span>
+    </div>
+    <div id='controls'>
+      <h1 id='state'>Unknown State</h1>
+      <div id='fts'>FTS</div>
+      <div id='commands'>
+        <div id='calibration' class='button'>Calibrate</div>
+        <div id='launch' class='button'>LAUNCH</div>
+      </div>
+    </div>
+    <script src='../telemetry.js'></script>
+    <script>
+      // TODO: add confirm box on FTS
+      const telemetry = new Telemetry()
+      let lines = []
+      function renderLogs() {
+        serializedLogs = lines.join('\n')
+        logsElement = document.getElementById('raw_logs')
+        logsElement.value = serializedLogs
+        autoscroll = document.getElementById('logs_wrapper').querySelector("input[type='checkbox']")
+        if (autoscroll.checked) {
+          logsElement.scrollTop = logsElement.scrollHeight
+        }
+
+        lastLine = lines[lines.length - 1]
+        if (lastLine.indexOf("RAW:") === 0) {
+          entries = lastLine.split(',')
+          state = entries[3]
+          document.getElementById('state').innerHTML = state
+        }
+      }
+
+      telemetry.addEventListener('data', ({detail}) => {
+        lines = lines.slice(Math.max(lines.length - 500, 0)).concat(detail)
+        renderLogs()
+      })
+
+      document.getElementById('calibration').onclick = () => {
+        telemetry.sendCalibrate();
+      }
+
+      document.getElementById('launch').onclick = () => {
+        telemetry.sendLaunched();
+      }
+
+      document.getElementById('fts').onclick = () => {
+        telemetry.sendFTS();
+      }
+    </script>
+  </body>
+</html>
