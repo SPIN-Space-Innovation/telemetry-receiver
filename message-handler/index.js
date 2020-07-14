@@ -1,8 +1,8 @@
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
-const WebSocket = require('ws');
+const WebSocket = require('ws')
 const { EventEmitter } = require('events')
-const mysqlLogger = require('./loggers/mysql')
+const influxdbLogger = require('./loggers/influxdb')
 
 SERVER_PORT = 3210
 WS_PORT = 8080
@@ -11,7 +11,7 @@ if (!process.env.PORT_PATH) {
   throw new Error('Provide PORT_PATH in env.')
 }
 
-const dataEmitter = new EventEmitter();
+const dataEmitter = new EventEmitter()
 const parser = new Readline()
 const serialPort = new SerialPort(process.env.PORT_PATH, { baudRate: 9600 })
 serialPort.pipe(parser)
@@ -26,9 +26,9 @@ const COMMANDS = {
   trigger_fts: 6
 }
 
-dataEmitter.on('data', mysqlLogger)
+dataEmitter.on('data', influxdbLogger)
 
-const wss = new WebSocket.Server({port: WS_PORT});
+const wss = new WebSocket.Server({port: WS_PORT})
 console.log(`Started WebSocket Server on port ${WS_PORT}`)
 wss.on('connection', (ws) => {
   dataEmitter.on('data', line => ws.send(line))
