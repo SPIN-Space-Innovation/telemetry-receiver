@@ -1,19 +1,20 @@
+require('dotenv').config()
 const mysql = require('mysql')
 
 const connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : '',
-  password : '',
-  database : ''
-});
+  host     : process.env.MYSQL_HOST || 'localhost',
+  user     : process.env.MYSQL_USER,
+  password : process.env.MYSQL_PASSWORD,
+  database : process.env.MYSQL_DB
+})
 
-connection.connect();
+connection.connect()
 
 previousData = null
 lastPacketNumber = 0
 packetsLost = 0
 module.exports = (messageStr, date) => {
-  let message;
+  let message
   try {
     message = JSON.parse(messageStr)
   } catch (e) {
@@ -30,7 +31,7 @@ module.exports = (messageStr, date) => {
     lastPacketNumber = packetNumber
 
     rawStart = data.indexOf('RAW:')
-    data = data.substr(rawStart + 4);
+    data = data.substr(rawStart + 4)
     try {
       data = data.split(',')
       met = +data[0]
