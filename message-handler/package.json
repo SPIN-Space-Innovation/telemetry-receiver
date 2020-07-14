@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Themis Papameletiou <themicp@gmail.com>",
+  "license": "gpl-3.0",
   "dependencies": {
     "mysql": "^2.18.1",
     "serialport": "^9.0.0",
