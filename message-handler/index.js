@@ -2,7 +2,7 @@ const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 const WebSocket = require('ws');
 const { EventEmitter } = require('events')
-const dbLogger = require('./db-logger')
+const mysqlLogger = require('./loggers/mysql')
 
 SERVER_PORT = 3210
 WS_PORT = 8080
@@ -26,7 +26,7 @@ const COMMANDS = {
   trigger_fts: 6
 }
 
-dataEmitter.on('data', dbLogger)
+dataEmitter.on('data', mysqlLogger)
 
 const wss = new WebSocket.Server({port: WS_PORT});
 console.log(`Started WebSocket Server on port ${WS_PORT}`)
