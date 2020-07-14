@@ -9,6 +9,7 @@
   "author": "Themis Papameletiou <themicp@gmail.com>",
   "license": "gpl-3.0",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "mysql": "^2.18.1",
     "serialport": "^9.0.0",
     "ws": "^7.3.1"
