@@ -5,9 +5,9 @@ let previousData = null
 let lastPacketNumber = 0
 let packetsLost = 0
 let startTime = Date.now()
-let influxEndpoint = `${process.env.INFLUXDB_HOST}/api/v2/write?org=${process.env.INFLUXDB_ORG}&bucket=${process.env.INFLUXDB_BUCKET}&precision=ms`
+let influxEndpoint = `${process.env.INFLUXDB_HOST}/write?db=${process.env.INFLUXDB_DB}&precision=ms`
 
-module.exports = (messageStr, date) => {
+module.exports = async (messageStr, date) => {
   let message
   try {
     message = JSON.parse(messageStr)
@@ -26,7 +26,7 @@ module.exports = (messageStr, date) => {
 
     rawStart = data.indexOf('RAW:')
     data = data.substr(rawStart + 4)
-    measurementBody = ''
+    measurementBody = 'measurement,source=telemetry '
     try {
       data = data.split(',')
       dataObj = {
@@ -47,22 +47,24 @@ module.exports = (messageStr, date) => {
       }
 
       if (dataObj.agl != null && previousData && previousData[4]) {
-        dt = met - previousData[0]
+        dt = dataObj.met - previousData[0]
         scale = 1000 / dt
         diff = dataObj.agl - parseFloat(previousData[4])
         dataObj.vertical_velocity = diff * scale // meters per second
       }
 
+      values = []
       for (let key in dataObj) {
         if (dataObj[key] === null || key == 'state') {
           // TODO: handle string values
           continue
         }
 
-        measurementBody += `measurement,source=telemetry ${key}=${dataObj[key]} ${dataObj.met + startTime}\n`
+        values.push(`${key}=${dataObj[key]}`)
       }
+      measurementBody += `${values.join(',')} ${dataObj.met + startTime}`
 
-      axios.post(
+      await axios.post(
         influxEndpoint,
         measurementBody,
         {
