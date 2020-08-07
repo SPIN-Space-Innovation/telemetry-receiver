@@ -31,20 +31,15 @@ void setup() {
 String unmarshall(uint8_t *buf) {
   TelemetryMessage message;
   message.type = (MESSAGE_TYPE)buf[0];
-  message.message_count = 0;
+  message.count = 0;
 
-  message.message_count = buf[1] << 24;
-  message.message_count = message.message_count | (buf[2] << 16);
-  message.message_count = message.message_count | (buf[3] << 8);
-  message.message_count = message.message_count | buf[4];
-
-  String message_string =
-    String((uint8_t)message.type) + "," +
-    String(message.message_count) + ",";
+  message.count = buf[1] << 24;
+  message.count = message.count | (buf[2] << 16);
+  message.count = message.count | (buf[3] << 8);
+  message.count = message.count | buf[4];
 
   if (message.type == MESSAGE_TYPE::DEBUG) {
     memcpy(message.debug_message, buf + 5, sizeof(message.debug_message));
-    message_string += message.debug_message;
   } else if (message.type == MESSAGE_TYPE::TELEMETRY) {
     // telemetry
     message.met = 0;
@@ -59,13 +54,6 @@ String unmarshall(uint8_t *buf) {
     message.battery_voltage_mv = message.battery_voltage_mv | buf[11];
 
     message.state = (STATE)buf[12];
-
-    message_string +=
-      String(message.met) + "," +
-      String(message.free_memory_kb) + "," +
-      String(message.battery_voltage_mv) + "," +
-      String(state_to_str(message.state));
-
     if (message.state != STATE::SETUP and message.state != STATE::IDLE and message.state != STATE::CALIBRATION) {
       message.payload.agl_cm = 0;
       message.payload.agl_cm = buf[13] << 24;
@@ -90,21 +78,10 @@ String unmarshall(uint8_t *buf) {
 
       message.payload.gps_fix = (bool)buf[29];
       message.payload.gps_satellites = (uint8_t)buf[30];
-
-      message_string += "," +
-        String(message.payload.agl_cm) + "," +
-        String(message.payload.acceleration_x) + "," +
-        String(message.payload.acceleration_y) + "," +
-        String(message.payload.acceleration_z) + "," +
-        String(message.payload.gyroscope_x) + "," +
-        String(message.payload.gyroscope_y) + "," +
-        String(message.payload.gyroscope_z) + "," +
-        String(message.payload.gps_fix) + "," +
-        String(message.payload.gps_satellites);
     }
   }
 
-  return message_string;
+  return stringifyTelemetryMessage(message);
 }
 
 void loop() {
