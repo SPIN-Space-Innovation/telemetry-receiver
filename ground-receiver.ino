@@ -18,6 +18,7 @@ void printJson(JsonDocument &doc) {
 
 void setup() {
   Serial.begin(9600);
+  Serial.setTimeout(100);
   while (!Serial) ; // Wait for serial port to be available
   if (!manager.init())
     Serial.println("init failed");
