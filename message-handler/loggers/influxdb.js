@@ -1,56 +1,46 @@
-require('dotenv').config()
+require('dotenv').config({path:__dirname+'/./../.env'})
 const axios = require('axios')
 
-let previousData = null
 let lastPacketNumber = 0
 let packetsLost = 0
 let startTime = Date.now()
 let influxEndpoint = `${process.env.INFLUXDB_HOST}/write?db=${process.env.INFLUXDB_DB}&precision=ms`
 
-module.exports = async (messageStr, date) => {
+module.exports = async (messageStr, overwriteTimeMs) => {
   let message
-  try {
-    message = JSON.parse(messageStr)
+  try { message = JSON.parse(messageStr)
   } catch (e) {
     return
   }
 
   data = message.message
+  message_prefix = data.substr(0,2)
 
-  if (data.indexOf('RAW:') >= 0) {
-    // Example message: (#)RAW:....
-    packetNumberEnd = data.indexOf(')')
-    packetNumber = parseInt(data.substring(1, packetNumberEnd))
-    packetsLost += packetNumber - lastPacketNumber - 1
-    lastPacketNumber = packetNumber
-
-    rawStart = data.indexOf('RAW:')
-    data = data.substr(rawStart + 4)
-    measurementBody = 'measurement,source=telemetry '
+  if (message_prefix === '0,') {
     try {
       data = data.split(',')
-      dataObj = {
-        met: +data[0],
-        free_memory: parseInt(data[1], 10),
-        battery: data[2] ? parseFloat(data[2]) : null,
-        state: data[3].replace(/\n|\r/g, ''),
-        agl: data[4] ? parseFloat(data[4]) : null,
-        acc_x: data[5] ? parseFloat(data[5]) : null,
-        acc_y: data[6] ? parseFloat(data[6]) : null,
-        acc_z: data[7] ? parseFloat(data[7]) : null,
-        gyro_x: data[8] ? parseFloat(data[8]) : null,
-        gyro_y: data[9] ? parseFloat(data[9]) : null,
-        gyro_z: data[10] ? parseFloat(data[10]) : null,
-        verical_velocity: null,
-        rssi: parseInt(message.rssi),
-        packets_lost: packetsLost
-      }
 
-      if (dataObj.agl != null && previousData && previousData[4]) {
-        dt = dataObj.met - previousData[0]
-        scale = 1000 / dt
-        diff = dataObj.agl - parseFloat(previousData[4])
-        dataObj.vertical_velocity = diff * scale // meters per second
+      packetNumber = +data[1]
+      packetsLost += packetNumber - lastPacketNumber - 1
+      lastPacketNumber = packetNumber
+
+      measurementBody = 'measurement,source=telemetry '
+
+      dataObj = {
+        met: +data[2],
+        free_memory: parseInt(data[3], 10),
+        battery: (+data[4])/1000, // mv -> v
+        state: data[5].replace(/\n|\r/g, ''),
+        agl: (+data[6])/100 || null, // cm -> m
+        acc_x: (+data[7])/100 || null, // cm/s^2 -> m/s^2
+        acc_y: (+data[8])/100 || null, // cm/s^2 -> m/s^2
+        acc_z: (+data[9])/100 || null, // cm/s^2 -> m/s^2
+        gyro_x: +data[10] || null,
+        gyro_y: +data[11] || null,
+        gyro_z: +data[12] || null,
+        verical_velocity: null,
+        rssi: +message.rssi,
+        packets_lost: packetsLost
       }
 
       values = []
@@ -62,7 +52,7 @@ module.exports = async (messageStr, date) => {
 
         values.push(`${key}=${dataObj[key]}`)
       }
-      measurementBody += `${values.join(',')} ${dataObj.met + startTime}`
+      measurementBody += `${values.join(',')} ${(dataObj.met + startTime) || overwriteTimeMs}`
 
       await axios.post(
         influxEndpoint,
@@ -77,7 +67,8 @@ module.exports = async (messageStr, date) => {
     } catch (e) {
       console.log(e)
     }
-
-    previousData = data
+  } else if (message_prefix === '1,') {
+    console.log("DEBUG: " + data)
+    // debug message
   }
 }
