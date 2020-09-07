@@ -110,6 +110,7 @@
       <div id='fts'>FTS</div>
       <div id='commands'>
         <div id='calibration' class='button'>Calibrate</div>
+        <div id='ejection_test' class='button'>Ejection Test</div>
         <div id='launch' class='button'>LAUNCH</div>
       </div>
     </div>
@@ -128,10 +129,16 @@
         }
 
         lastLine = lines[lines.length - 1]
-        if (lastLine.indexOf("RAW:") === 0) {
-          entries = lastLine.split(',')
-          state = entries[3]
-          document.getElementById('state').innerHTML = state
+        try {
+          payload = JSON.parse(lastLine).message
+
+          if (payload.substr(0, 2) === '0,') {
+            entries = payload.split(',')
+            state = entries[5]
+            document.getElementById('state').innerHTML = state
+          }
+        } catch(e) {
+          console.error(e)
         }
       }
 
@@ -142,6 +149,10 @@
 
       document.getElementById('calibration').onclick = () => {
         telemetry.sendCalibrate();
+      }
+
+      document.getElementById('ejection_test').onclick = () => {
+        telemetry.sendEjectionTestEnable();
       }
 
       document.getElementById('launch').onclick = () => {

@@ -21,6 +21,10 @@ class Telemetry extends EventTarget {
     this.socket.send('COMMAND:init_calibration')
   }
 
+  sendEjectionTestEnable() {
+    this.socket.send('COMMAND:set_ejection_test_mode')
+  }
+
   sendLaunched() {
     this.socket.send('COMMAND:launched')
   }
