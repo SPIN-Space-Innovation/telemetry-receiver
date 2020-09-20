@@ -6,6 +6,9 @@ let packetsLost = 0
 let startTime = Date.now()
 let influxEndpoint = `${process.env.INFLUXDB_HOST}/write?db=${process.env.INFLUXDB_DB}&precision=ms`
 
+
+// TODO: Fix start time
+
 module.exports = async (messageStr, overwriteTimeMs) => {
   let message
   try { message = JSON.parse(messageStr)
