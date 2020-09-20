@@ -55,30 +55,33 @@ String unmarshall(uint8_t *buf) {
     message.battery_voltage_mv = message.battery_voltage_mv | buf[11];
 
     message.state = (STATE)buf[12];
+
+    message.backup_deployer_status = buf[13] << 8;
+    message.backup_deployer_status |= buf[14];
     if (message.state != STATE::SETUP and message.state != STATE::IDLE and message.state != STATE::CALIBRATION) {
       message.payload.agl_cm = 0;
-      message.payload.agl_cm = buf[13] << 24;
-      message.payload.agl_cm = message.payload.agl_cm | (buf[14] << 16);
-      message.payload.agl_cm = message.payload.agl_cm | (buf[15] << 8);
-      message.payload.agl_cm = message.payload.agl_cm | buf[16];
+      message.payload.agl_cm = buf[15] << 24;
+      message.payload.agl_cm = message.payload.agl_cm | (buf[16] << 16);
+      message.payload.agl_cm = message.payload.agl_cm | (buf[17] << 8);
+      message.payload.agl_cm = message.payload.agl_cm | buf[18];
 
 
-      message.payload.acceleration_x = buf[17] << 8;
-      message.payload.acceleration_x = message.payload.acceleration_x | buf[18];
-      message.payload.acceleration_y = buf[19] << 8;
-      message.payload.acceleration_y = message.payload.acceleration_y | buf[20];
-      message.payload.acceleration_z = buf[21] << 8;
-      message.payload.acceleration_z = message.payload.acceleration_z | buf[22];
+      message.payload.acceleration_x = buf[19] << 8;
+      message.payload.acceleration_x = message.payload.acceleration_x | buf[20];
+      message.payload.acceleration_y = buf[21] << 8;
+      message.payload.acceleration_y = message.payload.acceleration_y | buf[22];
+      message.payload.acceleration_z = buf[23] << 8;
+      message.payload.acceleration_z = message.payload.acceleration_z | buf[24];
 
-      message.payload.gyroscope_x = buf[23] << 8;
-      message.payload.gyroscope_x = message.payload.gyroscope_x | buf[24];
-      message.payload.gyroscope_y = buf[25] << 8;
-      message.payload.gyroscope_y = message.payload.gyroscope_y | buf[26];
-      message.payload.gyroscope_z = buf[27] << 8;
-      message.payload.gyroscope_z = message.payload.gyroscope_z | buf[28];
+      message.payload.gyroscope_x = buf[25] << 8;
+      message.payload.gyroscope_x = message.payload.gyroscope_x | buf[26];
+      message.payload.gyroscope_y = buf[27] << 8;
+      message.payload.gyroscope_y = message.payload.gyroscope_y | buf[28];
+      message.payload.gyroscope_z = buf[29] << 8;
+      message.payload.gyroscope_z = message.payload.gyroscope_z | buf[30];
 
-      message.payload.gps_fix = (bool)buf[29];
-      message.payload.gps_satellites = (uint8_t)buf[30];
+      message.payload.gps_fix = (bool)buf[21];
+      message.payload.gps_satellites = (uint8_t)buf[32];
     }
   }
 
