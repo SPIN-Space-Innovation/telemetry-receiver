@@ -34,13 +34,13 @@ module.exports = async (messageStr, overwriteTimeMs) => {
         free_memory: parseInt(data[3], 10),
         battery: (+data[4])/1000, // mv -> v
         state: data[5].replace(/\n|\r/g, ''),
-        agl: (+data[6])/100 || null, // cm -> m
-        acc_x: (+data[7])/100 || null, // cm/s^2 -> m/s^2
-        acc_y: (+data[8])/100 || null, // cm/s^2 -> m/s^2
-        acc_z: (+data[9])/100 || null, // cm/s^2 -> m/s^2
-        gyro_x: +data[10] || null,
-        gyro_y: +data[11] || null,
-        gyro_z: +data[12] || null,
+        agl: (+data[8])/100 || null, // cm -> m
+        acc_x: (+data[9])/100 || null, // cm/s^2 -> m/s^2
+        acc_y: (+data[10])/100 || null, // cm/s^2 -> m/s^2
+        acc_z: (+data[11])/100 || null, // cm/s^2 -> m/s^2
+        gyro_x: +data[12] || null,
+        gyro_y: +data[13] || null,
+        gyro_z: +data[14] || null,
         verical_velocity: null,
         rssi: +message.rssi,
         packets_lost: packetsLost
