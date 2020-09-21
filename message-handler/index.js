@@ -22,9 +22,11 @@ parser.on('data', (line) => {
 
 const COMMANDS = {
   init_calibration: 1,
-  set_ejection_test_mode: 3,
-  launched: 4,
-  trigger_fts: 7
+  start_backup_countdown: 3,
+  reset_backup_countdown: 5,
+  set_ejection_test_mode: 7,
+  launched: 8,
+  trigger_fts: 11
 }
 
 dataEmitter.on('data', influxdbLogger)
