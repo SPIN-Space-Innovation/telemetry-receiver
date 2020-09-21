@@ -109,8 +109,12 @@
         color: #fff;
       }
 
-      #backup_deployer h2 span {
+      .red {
         color: #d63031;
+      }
+
+      .green {
+        color: #55efc4;
       }
     </style>
   </head>
@@ -163,12 +167,15 @@
             backupDeployerStatusElement = document.querySelector('#backup_deployer h2 span')
             if (backupDeployerState == '1') {
               backupDeployerStatusElement.innerText = 'Arming in ' + backupDeployerTimer + 's';
+              backupDeployerStatusElement.className = 'red';
             } else if (backupDeployerState == '2') {
               backupDeployerStatusElement.innerText = 'Firing in ' + backupDeployerTimer + 's';
+              backupDeployerStatusElement.className = 'red';
             } else if (backupDeployerState == '3') {
               backupDeployerStatusElement.innerText = 'Disarmed';
             } else {
               backupDeployerStatusElement.innerText = 'Waiting';
+              backupDeployerStatusElement.className = 'green';
             }
           }
         } catch(e) {
