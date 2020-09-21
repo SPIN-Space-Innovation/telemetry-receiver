@@ -32,4 +32,12 @@ class Telemetry extends EventTarget {
   sendFTS() {
     this.socket.send('COMMAND:trigger_fts')
   }
+
+  sendArmBackupDeployer() {
+    this.socket.send('COMMAND:start_backup_countdown')
+  }
+
+  sendResetBackupDeployer() {
+    this.socket.send('COMMAND:reset_backup_countdown')
+  }
 }

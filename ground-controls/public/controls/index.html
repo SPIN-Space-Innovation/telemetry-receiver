@@ -50,7 +50,7 @@
         position: absolute;
         width: 50%;
         right: 0;
-        top: calc(50% - 210px);
+        top: calc(50% - 300px);
       }
 
       #state {
@@ -91,12 +91,26 @@
       }
 
       #commands {
-        margin-top: 100px;
+        margin: 100px auto;
+        text-align: center;
+        width: 530px;
+      }
+
+      #commands .button, #backup_deployer_commands .button {
+        display: inline-block;
+      }
+
+      #backup_deployer {
+        margin: auto;
         text-align: center;
       }
 
-      #commands .button {
-        display: inline-block;
+      #backup_deployer h2 {
+        color: #fff;
+      }
+
+      #backup_deployer h2 span {
+        color: #d63031;
       }
     </style>
   </head>
@@ -112,6 +126,13 @@
         <div id='calibration' class='button'>Calibrate</div>
         <div id='ejection_test' class='button'>Ejection Test</div>
         <div id='launch' class='button'>LAUNCH</div>
+      </div>
+      <div id='backup_deployer'>
+        <h2>Backup Deployer: <span></span></h2>
+        <div id='backup_deployer_commands'>
+          <div id='arm_backup_deployer' class='button'>Arm Backup Deployer</div>
+          <div id='reset_backup_deployer' class='button'>Reset Backup Deployer</div>
+        </div>
       </div>
     </div>
     <script src='../telemetry.js'></script>
@@ -136,6 +157,19 @@
             entries = payload.split(',')
             state = entries[5]
             document.getElementById('state').innerHTML = state
+
+            backupDeployerState = entries[6];
+            backupDeployerTimer = entries[7];
+            backupDeployerStatusElement = document.querySelector('#backup_deployer h2 span')
+            if (backupDeployerState == '1') {
+              backupDeployerStatusElement.innerText = 'Arming in ' + backupDeployerTimer + 's';
+            } else if (backupDeployerState == '2') {
+              backupDeployerStatusElement.innerText = 'Firing in ' + backupDeployerTimer + 's';
+            } else if (backupDeployerState == '3') {
+              backupDeployerStatusElement.innerText = 'Disarmed';
+            } else {
+              backupDeployerStatusElement.innerText = 'Waiting';
+            }
           }
         } catch(e) {
           console.error(e)
@@ -161,6 +195,14 @@
 
       document.getElementById('fts').onclick = () => {
         telemetry.sendFTS();
+      }
+
+      document.getElementById('arm_backup_deployer').onclick = () => {
+        telemetry.sendArmBackupDeployer();
+      }
+
+      document.getElementById('reset_backup_deployer').onclick = () => {
+        telemetry.sendResetBackupDeployer();
       }
     </script>
   </body>
