@@ -1,3 +1,7 @@
 [submodule "libraries/external/ArduinoJson"]
 	path = libraries/external/ArduinoJson
 	url = git@github.com:bblanchon/ArduinoJson.git
+[submodule "libraries/external/RadioHead"]
+	path = RadioHead
+	url = git@github.com:themicp/RadioHead.git
+	branch = master
