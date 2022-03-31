@@ -29,60 +29,15 @@ void setup() {
   manager.setRetries(15);
 }
 
-String unmarshall(uint8_t *buf) {
+String parse_buffer(uint8_t *buf) {
   TelemetryMessage message;
-  message.type = (MESSAGE_TYPE)buf[0];
-  message.count = 0;
+  size_t message_size = sizeof(message);
+  size_t debug_message_size = sizeof(TelemetryMessage::debug_message);
 
-  message.count = buf[1] << 24;
-  message.count = message.count | (buf[2] << 16);
-  message.count = message.count | (buf[3] << 8);
-  message.count = message.count | buf[4];
-
+  memcpy(&message, buf, message_size - debug_message_size);
   if (message.type == MESSAGE_TYPE::DEBUG) {
-    memcpy(message.debug_message, buf + 5, sizeof(message.debug_message));
-  } else if (message.type == MESSAGE_TYPE::TELEMETRY) {
-    // telemetry
-    message.met = 0;
-    message.met = buf[5] << 24;
-    message.met = message.met | (buf[6] << 16);
-    message.met = message.met | (buf[7] << 8);
-    message.met = message.met | buf[8];
-
-    message.free_memory_kb = buf[9];
-
-    message.battery_voltage_mv = buf[10] << 8;
-    message.battery_voltage_mv = message.battery_voltage_mv | buf[11];
-
-    message.state = (STATE)buf[12];
-
-    message.backup_deployer_status = buf[13] << 8;
-    message.backup_deployer_status |= buf[14];
-    if (message.state != STATE::SETUP and message.state != STATE::IDLE and message.state != STATE::CALIBRATION) {
-      message.payload.agl_cm = 0;
-      message.payload.agl_cm = buf[15] << 24;
-      message.payload.agl_cm = message.payload.agl_cm | (buf[16] << 16);
-      message.payload.agl_cm = message.payload.agl_cm | (buf[17] << 8);
-      message.payload.agl_cm = message.payload.agl_cm | buf[18];
-
-
-      message.payload.acceleration_x = buf[19] << 8;
-      message.payload.acceleration_x = message.payload.acceleration_x | buf[20];
-      message.payload.acceleration_y = buf[21] << 8;
-      message.payload.acceleration_y = message.payload.acceleration_y | buf[22];
-      message.payload.acceleration_z = buf[23] << 8;
-      message.payload.acceleration_z = message.payload.acceleration_z | buf[24];
-
-      message.payload.gyroscope_x = buf[25] << 8;
-      message.payload.gyroscope_x = message.payload.gyroscope_x | buf[26];
-      message.payload.gyroscope_y = buf[27] << 8;
-      message.payload.gyroscope_y = message.payload.gyroscope_y | buf[28];
-      message.payload.gyroscope_z = buf[29] << 8;
-      message.payload.gyroscope_z = message.payload.gyroscope_z | buf[30];
-
-      message.payload.gps_fix = (bool)buf[21];
-      message.payload.gps_satellites = (uint8_t)buf[32];
-    }
+    size_t offset = message_size - debug_message_size;
+    memcpy(message.debug_message, buf + offset, debug_message_size);
   }
 
   return stringifyTelemetryMessage(message);
@@ -96,7 +51,7 @@ void loop() {
 
   if (rf95.available()) {
     if (rf95.recv(buf, &len)) {
-      output["message"] = unmarshall(buf);
+      output["message"] = parse_buffer(buf);
       output["rssi"] = rf95.lastRssi();
       printJson(output);
     }
