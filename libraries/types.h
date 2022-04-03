@@ -33,7 +33,8 @@ struct TelemetryMessage {
   uint8_t free_memory_kb;
   uint16_t battery_voltage_mv;
   STATE state;
-  uint16_t backup_deployer_status;
+  bool sd_logs_enabled;
+  uint8_t selected_igniter;
   TelemetryMessagePayload payload;
   char debug_message[80];
 };
