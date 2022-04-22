@@ -10,7 +10,7 @@ String state_to_str(STATE state) {
 }
 
 String event_to_str(EVENT event) {
-  String names[] = {"SETUP_COMPLETE", "INIT_CALIBRATION", "CALIBRATION_COMPLETE", "START_BACKUP_COUNTDOWN", "BACKUP_COUNTDOWN_STARTED", "RESET_BACKUP_COUNTDOWN",  "BACKUP_COUNTDOWN_RESETTED", "SET_EJECTION_TEST", "LAUNCHED", "APOGEE_TIMER_TIMEOUT", "APOGEE_DETECTED", "TRIGGER_FTS", "CHUTE_EJECTED"};
+  String names[] = {"SETUP_COMPLETE", "INIT_CALIBRATION", "CALIBRATION_COMPLETE", "START_BACKUP_COUNTDOWN", "BACKUP_COUNTDOWN_STARTED", "RESET_BACKUP_COUNTDOWN",  "BACKUP_COUNTDOWN_RESETTED", "SET_EJECTION_TEST", "LAUNCHED", "APOGEE_TIMER_TIMEOUT", "APOGEE_DETECTED", "TRIGGER_FTS", "CHUTE_EJECTED", "GO_IDLE"};
   if ((int)event >= (int)EVENT::Count or (int)event < 0) {
     return "Unknown";
   }
@@ -37,6 +37,7 @@ String stringifyTelemetryMessage(TelemetryMessage message) {
       message_str += "," +
         String(message.payload.agl_cm) + "," +
         String(message.payload.pressure) + "," +
+        String(message.payload.temperature) + "," +
         String(message.payload.acceleration_x) + "," +
         String(message.payload.acceleration_y) + "," +
         String(message.payload.acceleration_z) + "," +
